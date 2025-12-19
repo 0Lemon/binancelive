@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>币安广场直播列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-[#0b0e11] text-gray-100 font-sans">
+    <div id="app" class="max-w-lg mx-auto min-h-screen">
+        <header class="sticky top-0 z-50 bg-[#0b0e11]/80 backdrop-blur-md p-4 border-b border-gray-800 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-[#f0b90b]">广场直播监控</h1>
+            <button @click="fetchData" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400">刷新</button>
+        </header>
+
+        <div v-if="loading" class="flex flex-col items-center justify-center h-64 space-y-4">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#f0b90b]"></div>
+            <p class="text-gray-500">正在获取直播数据...</p>
+        </div>
+
+        <div v-else class="p-4 grid grid-cols-1 gap-4">
+            <div v-for="item in lives" :key="item.id" class="bg-[#1e2329] rounded-2xl overflow-hidden border border-gray-800 hover:border-gray-600 transition">
+                <div class="relative h-48">
+                    <img :src="item.cover" class="w-full h-full object-cover">
+                    <div class="absolute top-3 left-3 bg-red-600 px-2 py-0.5 rounded text-[10px] font-bold flex items-center">
+                        <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse mr-1"></span> LIVE
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-base font-bold line-clamp-2 mb-4 h-12">{{ item.title }}</h3>
+                    <div class="flex justify-between items-center text-xs text-gray-400 bg-black/20 p-3 rounded-xl">
+                        <div class="text-center">
+                            <p class="mb-1">观看次数</p>
+                            <p class="text-yellow-500 font-bold text-sm">{{ item.viewers }}</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="mb-1">在线人数</p>
+                            <p class="text-green-500 font-bold text-sm">{{ item.online }}</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="mb-1">评论数</p>
+                            <p class="text-blue-500 font-bold text-sm">{{ item.comments }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+        createApp({
+            setup() {
+                const lives = ref([]);
+                const loading = ref(true);
+
+                const fetchData = async () => {
+                    loading.value = true;
+                    try {
+                        const res = await fetch('/api/lives'); // 调用本项目下的 Functions 接口
+                        const result = await res.json();
+                        if(result.success) {
+                            lives.value = result.data;
+                        }
+                    } catch (e) {
+                        alert("获取失败: " + e.message);
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+                onMounted(fetchData);
+                return { lives, loading, fetchData };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
