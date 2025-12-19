@@ -58,7 +58,7 @@
                 const fetchData = async () => {
                     loading.value = true;
                     try {
-                        const res = await fetch('/api/lives'); // 调用本项目下的 Functions 接口
+                        const res = await fetch('https://binance-proxy.0xlemon.workers.dev/'); // 调用本项目下的 Functions 接口
                         const result = await res.json();
                         if(result.success) {
                             lives.value = result.data;
